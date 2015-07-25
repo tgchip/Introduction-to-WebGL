@@ -2,13 +2,11 @@
 
 var canvas;
 var gl;
-
 var points = [];
-
-
 var bufferId;
 var bMouseDown = false;
 var colorLoc;
+var lineWidth = 1;
 
 function getMousePos(canvas, evt) 
 {
@@ -41,7 +39,8 @@ window.onload = function init()
 
     var program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
-
+	colorLoc = gl.getUniformLocation(program, "color");
+	gl.uniform4f(colorLoc, 0.0, 0.0, 0.0, 1.0);
     // Load the data into the GPU
 
     bufferId = gl.createBuffer();
@@ -83,7 +82,46 @@ window.onload = function init()
 			console.log("Mouse Move Event: (" + mousePos.x + " , " + mousePos.y + ")");
 		}
 	});
+	
+	var colSelections = document.getElementById("colorSelection");
+	colSelections.addEventListener('click', function()
+	{
+		switch (colSelections.selectedIndex)
+		{
+			case 0:
+				gl.uniform4f(colorLoc, 0.0, 0.0, 0.0, 1.0);
+				break;
+			case 1:
+				gl.uniform4f(colorLoc, 1.0, 0.0, 0.0, 1.0);
+				break;
+			case 2:
+				gl.uniform4f(colorLoc, 0.0, 1.0, 0.0, 1.0);
+				break;
+			case 3:
+				gl.uniform4f(colorLoc, 0.0, 0.0, 1.0, 1.0);
+				break;
+		}
+	});
 
+	var lwSelections = document.getElementById("lineWidth");
+	lwSelections.addEventListener('click', function()
+	{
+		switch (lwSelections.selectedIndex)
+		{
+			case 0:
+				lineWidth = 1;
+				break;
+			case 1:
+				lineWidth = 3;
+				break;
+			case 2:
+				lineWidth = 6;
+				break;
+			case 3:
+				lineWidth = 9;
+				break;
+		}
+	});
     
 };
 
@@ -94,7 +132,7 @@ function render()
     // First, initialize the corners of our gasket with three points.
 
 	gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
-
+	gl.lineWidth(lineWidth);
     gl.drawArrays(gl.LINE_STRIP, 0, points.length );
 
 }

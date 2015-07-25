@@ -17,11 +17,12 @@ main()
 
 <script id="fragment-shader" type="x-shader/x-fragment">
 precision mediump float;
+uniform vec4 color;
 
 void
 main()
 {
-    gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0 );
+    gl_FragColor = color; //vec4( 0.0, 0.0, 0.0, 1.0 );
 }
 </script>
 
@@ -34,12 +35,30 @@ main()
 <body>
 	<h2>Assignment #2 - Painting Program</h2>
 	<div>
+
 	</div>
 	<canvas id="gl-canvas" width="512" height="512" style="border:2px solid #000000;">
 		Oops ... your browser doesn't support the HTML5 canvas element
 	</canvas>
 	<div>
-	<button id='clear' onclick='onButtonClick()' style="font-size:20px">Clear Painting</button>
+		<span style="font-size:20px; margin-left:10px;">Color</span>
+		<span style="font-size:20px; margin-left:45px;">Line Size</span>
+	</div>
+		
+	<div>
+		<select id="colorSelection" size = "4" style="font-size:20px; margin-right:40px;">
+			<option valaue = "0">Black</option>
+			<option valaue = "1">Red</option>
+			<option valaue = "2">Green</option>
+			<option valaue = "3">Blue</option>
+		</select>
+		<select id="lineWidth" size = "4" style="font-size:20px; margin-right:40px;">
+			<option valaue = "0">1 px</option>
+			<option valaue = "1">3 px</option>
+			<option valaue = "2">6 px</option>
+			<option valaue = "3">9 px</option>
+		</select>
+		<button id='clear' onclick='onButtonClick()' style="font-size:20px; margin-top:-20px;">Clear Painting</button>
 	</div>
 </body>
 </html>
