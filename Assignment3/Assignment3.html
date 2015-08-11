@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>Geometric CAD</title>
+
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute vec3 vPosition;			//- Triangle vertex position
+uniform mat4 uModelViewMatrix;    	//- Model View Matrix
+uniform mat4 uProjectionMatrix;		//- Projection Matrix
+uniform mat4 uTranslationMatrix;
+
+void main()
+{
+        gl_Position = uProjectionMatrix*uTranslationMatrix*uModelViewMatrix*vec4(vPosition, 1.0);
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+uniform vec4 fColor;
+
+void main()
+{
+    gl_FragColor = fColor;
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="Assignment3.js"></script>
+</head>   
+
+<body>
+	<h2>Assignment #3 - Geometric CAD</h2>
+	<div>
+
+	</div>
+	<canvas id="gl-canvas" width="620" height="512" style="border:2px solid #000000;">
+		Oops ... your browser doesn't support the HTML5 canvas element
+	</canvas>
+	<div>
+		<span style="font-size:20px; margin-left:5px;">3D-Object</span>
+		<span style="font-size:20px; margin-left:40px;">Color</span>
+		<span style="font-size:20px; margin-left:60px;">Object Property Controls</span>
+	</div>
+		
+	<div style="float: left;">
+		<select id="objectSelection" size = "3" style="font-size:20px; margin-right:25px; margin-left:5px">
+			<option valaue = "0" selected="selected">Sphere</option>
+			<option valaue = "1">Cone</option>
+			<option valaue = "2">Cylinder</option>
+		</select>
+
+	</div>
+	<div style="float: left;">
+		<select id="colorSelection" size = "3" style="font-size:20px; margin-right:25px; margin-left:5px">
+			<option valaue = "0" selected="selected">Red</option>
+			<option valaue = "1">Green</option>
+			<option valaue = "2">Blue</option>
+		</select>
+	</div>
+	<div style="float: left; margin-right:20px">
+			<span style= "margin-left:20px;"></span>Side <input id="sliderOrientation" type="range" min="0" max="90" step="1" value="45"> Top<br>
+			<span style= "margin-left:11px;"></span> Small <input id="sliderSize" type="range" min="10" max="100" step="1" value="50"> Large <br>
+			<span style= "margin-left:20px;"></span>Left <input id="sliderXPosition" type="range" min="-310" max="310" step="1" value="0"> Right  <br>
+			<span style= "margin-left:0px;"></span>Bottom <input id="sliderYPosition" type="range" min="-256" max="256" step="1" value="0"> Top
+	</div>
+	<div>
+		<button id='addObject' onclick='onAddButtonClick()' style="font-size:20px; margin-top:0px; margin-bottom: 10px">Add Object</button>  <br>
+		<button id='clearObjects' onclick='onClearButtonClick()' style="font-size:20px; margin-top:10px;">Clear Objects</button>		
+	</div>
+</body>
+</html>
