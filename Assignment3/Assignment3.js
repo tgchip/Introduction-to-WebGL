@@ -336,8 +336,8 @@ function render()
 	var colorLoc = gl.getUniformLocation( program, "fColor" ); 
 
 	gl.uniform4fv(colorLoc, flatten(color));
-	gl.drawElements(gl.TRIANGLES, indexData.length, gl.UNSIGNED_SHORT, 0);
-	gl.uniform4fv(colorLoc, flatten([0.0, 0.0, 0.0, 1.0]));
+	//gl.drawElements(gl.TRIANGLES, indexData.length, gl.UNSIGNED_SHORT, 0);
+	//gl.uniform4fv(colorLoc, flatten([0.0, 0.0, 0.0, 1.0]));
 	gl.drawElements(gl.LINES, indexData.length, gl.UNSIGNED_SHORT, 0);
 
 }
