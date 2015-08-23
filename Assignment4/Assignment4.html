@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>Geometric CAD</title>
+
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute 	vec3 vPosition;			//- Triangle vertex position
+attribute  	vec3 vNormal;
+varying 	vec4 fColor;
+
+uniform mat4 uModelViewMatrix;    	//- Model View Matrix
+uniform mat4 uProjectionMatrix;		//- Projection Matrix
+uniform mat4 uTranslationMatrix;
+uniform mat4 uScalingMatrix;
+
+uniform vec4 ambientProduct[2], diffuseProduct[2], specularProduct[2];
+uniform vec4 lightPosition[2];
+uniform float shininess;
+
+void main()
+{
+  
+	vec3 pos = -(uTranslationMatrix*uScalingMatrix*uModelViewMatrix * vec4(vPosition,1.0)).xyz;
+	vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+	
+	for (int i=0; i<2; i++) 
+	{
+	
+	    vec3 light = lightPosition[i].xyz;
+	    vec3 L = normalize( light - pos );
+
+	    vec3 E = normalize( -pos );
+	    vec3 H = normalize( L + E );
+    
+	    vec4 NN = vec4(vNormal, 0.0);
+
+	    // Transform vertex normal into eye coordinates
+
+	    vec3 N = normalize( (uTranslationMatrix*uScalingMatrix*uModelViewMatrix*NN).xyz);
+
+	    // Compute terms in the illumination equation
+	    vec4 ambient = ambientProduct[i];
+
+	    float Kd = max( dot(L, N), 0.0 );
+	    vec4  diffuse = Kd*diffuseProduct[i];
+
+	    float Ks = pow( max(dot(N, H), 0.0), shininess );
+	 	vec4  specular = Ks * specularProduct[i];
+    
+	    if( dot(L, N) < 0.0 ) 
+		{
+			specular = vec4(0.0, 0.0, 0.0, 1.0);
+	    }
+
+	    color = color + ambient + diffuse + specular;
+	    
+	}
+	
+	fColor = color;
+	fColor.a = 1.0;
+	gl_Position = uProjectionMatrix*uTranslationMatrix*uScalingMatrix*uModelViewMatrix*vec4(vPosition, 1.0);
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+varying vec4 fColor;
+
+void main()
+{
+    gl_FragColor = fColor;
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="Assignment4.js"></script>
+</head>   
+
+<body>
+	<h2>Assignment #4 - Geometric CAD with Lighting</h2>
+	<div>
+
+	</div>
+	<canvas id="gl-canvas" width="620" height="512" style="border:2px solid #000000;">
+		Oops ... your browser doesn't support the HTML5 canvas element
+	</canvas>
+	<div>
+		<span style="font-size:20px; margin-left:5px;">3D-Object</span>
+		<span style="font-size:20px; margin-left:40px;">Lights</span>
+		<span style="font-size:20px; margin-left:30px;">Object Property Controls</span>
+	</div>
+		
+	<div style="float: left;">
+		<select id="objectSelection" size = "3" style="font-size:20px; margin-right:20px; margin-left:5px">
+			<option valaue = "0" selected="selected">Sphere</option>
+			<option valaue = "1">Cone</option>
+			<option valaue = "2">Cylinder</option>
+		</select>
+
+	</div>
+	<div style="float: left; margin-right: 20px">
+		<input id="light1", type="checkbox" name="light1" value="On" onclick="onToggleLight1()" checked >Light #1<br>
+		<input id="light2", type="checkbox" name="light2" value="On" onclick="onToggleLight2()" checked >Light #2<br>
+	</div>
+	<div style="float: left; margin-right:20px">
+			<span style= "margin-left:20px; margin-top: 20px; margin-bottom: 10px"></span>Left <input id="sliderXPosition" type="range" min="-310" max="310" step="1" value="0"> Right  <br>
+			<span style= "margin-left:0px;margin-bottom:10px"></span>Bottom <input id="sliderYPosition" type="range" min="-256" max="256" step="1" value="0"> Top
+	</div>
+	<div style="float: left; margin-top: -10px">
+		<button id='addObject' onclick='onAddButtonClick()' style="font-size:20px; margin-top:0px; margin-bottom: 0px">Add Object</button>  <br>
+		<button id='runAnimation' onclick='onStopAnimationClick()' style="font-size:20px; margin-top:5px;">Start Animation</button> <br>
+		<button id='clearObjects' onclick='onClearButtonClick()' style="font-size:20px; margin-top:5px;">Clear Objects</button>		
+	</div>
+</body>
+</html>
