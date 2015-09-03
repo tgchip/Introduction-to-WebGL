@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>Geometric CAD</title>
+
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute 	vec3 vPosition;			//- Triangle vertex position
+attribute  	vec3 vNormal;
+attribute 	vec2 aTextureCoord;          //- Texture coordinate from application
+
+varying 	vec4 fColor;
+varying		vec2 vTextureCoord;
+
+uniform mat4 uModelViewMatrix;    	//- Model View Matrix
+uniform mat4 uProjectionMatrix;		//- Projection Matrix
+uniform mat4 uRotationMatrix;
+uniform mat4 uScalingMatrix;
+
+uniform vec4 ambientProduct[2], diffuseProduct[2], specularProduct[2];
+uniform vec4 lightPosition[2];
+uniform float shininess;
+
+void main()
+{
+  
+	vec3 pos = -(uScalingMatrix * uModelViewMatrix * uRotationMatrix * vec4(vPosition,1.0)).xyz;
+	vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+	
+	for (int i=0; i<2; i++) 
+	{
+	
+	    vec3 light = lightPosition[i].xyz;
+	    vec3 L = normalize( light - pos );
+
+	    vec3 E = normalize( -pos );
+	    vec3 H = normalize( L + E );
+    
+	    vec4 NN = vec4(vNormal, 0.0);
+
+	    // Transform vertex normal into eye coordinates
+
+	    vec3 N = normalize( (uScalingMatrix*uModelViewMatrix*uRotationMatrix*NN).xyz);
+
+	    // Compute terms in the illumination equation
+	    vec4 ambient = ambientProduct[i];
+
+	    float Kd = max( dot(L, N), 0.0 );
+	    vec4  diffuse = Kd*diffuseProduct[i];
+
+	    float Ks = pow( max(dot(N, H), 0.0), shininess );
+	 	vec4  specular = Ks * specularProduct[i];
+    
+	    if( dot(L, N) < 0.0 ) 
+		{
+			specular = vec4(0.0, 0.0, 0.0, 1.0);
+	    }
+
+	    color = color + ambient + diffuse + specular;
+	    
+	}
+	
+	vTextureCoord = aTextureCoord;
+	fColor = color;
+	fColor.a = 1.0;
+	gl_Position = uProjectionMatrix*uScalingMatrix*uModelViewMatrix*uRotationMatrix*vec4(vPosition, 1.0);
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+varying vec4 fColor;
+varying vec2 vTextureCoord;
+
+uniform sampler2D uSampler;
+
+void main()
+{
+	vec4 textureColor = texture2D(uSampler, vTextureCoord);
+    gl_FragColor = vec4(textureColor.rgb * fColor.rgb, textureColor.a);;
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="Assignment5.js"></script>
+</head>   
+
+<body>
+	<h2>Assignment #5 - Textured Sphere</h2>
+	<div>
+		<div style="float: left">
+			<canvas id="gl-canvas" width="620" height="512" style="border:2px solid #000000;">
+				Oops ... your browser doesn't support the HTML5 canvas element
+			</canvas>
+		</div>
+		
+		<div>
+			<select id="textureSelection" size = "3"  style="font-size:20px;margin-left:20px;margin-bottom:20px" >
+				<option valaue = "0" selected="selected">Checkerboard Pattern</option>
+				<option valaue = "1">Brick Pattern</option>
+				<option valaue = "2">Concrete Pattern</option>
+			</select>
+		</div>
+		
+		<div>
+			<input id="light1", type="checkbox" name="light1" value="On" onclick="onToggleLight1()" checked  style="font-size:30px;margin-left:20px">Light #1</input><br>
+			<input id="light2", type="checkbox" name="light2" value="On" onclick="onToggleLight2()" checked  style="font-size:30px;margin-left:20px;margin-bottom:20px">Light #2</input><br>
+		</div>
+		
+		<div>
+				<span style= "margin-left:20px; margin-top: 30px; margin-bottom: 10px"></span>X -90 <input id="sliderXPosition" type="range" min="-90" max="90" step="1" value="0"> 90  <br>
+				<span style= "margin-left:20px;margin-bottom:10px"></span>Y -90 <input id="sliderYPosition" type="range" min="-90" max="90" step="1" value="0"> 90   <br>
+				<span style= "margin-left:20px;margin-bottom:10px"></span>Z -90 <input id="sliderZPosition" type="range" min="-90" max="90" step="1" value="0"> 90   <br>
+		</div>
+		
+		<div>
+			<button id='resetOrientation' onclick='onResetOrientationButtonClick()' style="font-size:20px; margin-top:10px;margin-left:20px">Reset Orientation</button>	<br>
+			<button id='clearObjects' onclick='onClearButtonClick()' style="font-size:20px; margin-top:10px;margin-left:20px">Clear Sphere</button>		
+		</div>
+		
+	</div>
+<img id = "brickWall" src = "brick-wall.gif" hidden></img>
+<img id = "concrete" src = "concrete.gif" hidden></img>
+</body>
+</html>
